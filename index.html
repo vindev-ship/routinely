@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Routinely — Task Manager</title>
+
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- External Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ─────────────────────────────────────────────
+       MAIN CONTAINER
+  ───────────────────────────────────────────── -->
+  <div class="container">
+
+    <!-- HEADER -->
+    <header>
+      <div>
+        <div class="logo">Routinely<span>.</span></div>
+        <div class="tagline">Your daily command center</div>
+      </div>
+      <div class="date-chip" id="dateDisplay"></div>
+    </header>
+
+    <!-- STATS ROW -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Total Tasks</div>
+        <div class="stat-value" id="statTotal">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Completed</div>
+        <div class="stat-value" id="statDone">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Remaining</div>
+        <div class="stat-value" id="statPending">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Overdue</div>
+        <div class="stat-value overdue-value" id="statOverdue">0</div>
+      </div>
+    </div>
+
+    <!-- TODAY'S PROGRESS BAR -->
+    <div class="progress-wrap">
+      <div class="progress-head">
+        <span class="progress-label">Today's Progress</span>
+        <span class="progress-pct" id="progressPct">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- STREAK & PRODUCTIVITY SCORE -->
+    <div class="streak-productivity">
+
+      <!-- Streak Card -->
+      <div class="streak-card">
+        <span class="streak-fire" id="streakFire">🔥</span>
+        <div class="streak-number" id="streakCount">0</div>
+        <div class="streak-label">Day Streak</div>
+        <div class="streak-best">Best: <strong id="streakBest">0</strong> days</div>
+        <div class="streak-msg" id="streakMsg"></div>
+        <div class="heatmap-wrap">
+          <div class="heatmap-label">Last 14 Days</div>
+          <div class="heatmap" id="heatmap"></div>
+        </div>
+      </div>
+
+      <!-- Productivity Score Card -->
+      <div class="score-card">
+        <div class="score-header">
+          <div class="score-title">Productivity Score</div>
+          <div class="score-grade" id="scoreGrade">–</div>
+        </div>
+        <div class="score-number" id="scoreNumber">–</div>
+        <div class="score-sublabel">out of 100 points</div>
+        <div class="score-factors">
+          <div class="score-factor">
+            <span class="sf-label">Task Completion</span>
+            <div class="sf-bar-wrap">
+              <div class="sf-bar completion" id="sf-completion" style="width: 0%"></div>
+            </div>
+            <span class="sf-val" id="sfv-completion">0%</span>
+          </div>
+          <div class="score-factor">
+            <span class="sf-label">Daily Streak</span>
+            <div class="sf-bar-wrap">
+              <div class="sf-bar streak-f" id="sf-streak" style="width: 0%"></div>
+            </div>
+            <span class="sf-val" id="sfv-streak">0%</span>
+          </div>
+          <div class="score-factor">
+            <span class="sf-label">High Priority %</span>
+            <div class="sf-bar-wrap">
+              <div class="sf-bar priority-f" id="sf-priority" style="width: 0%"></div>
+            </div>
+            <span class="sf-val" id="sfv-priority">0%</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.streak-productivity -->
+
+    <!-- ADD TASK FORM -->
+    <div class="add-form">
+      <div class="form-title">+ New Task</div>
+
+      <!-- Task name + date + submit -->
+      <div class="form-row">
+        <input type="text" id="taskInput" placeholder="What needs to be done?" />
+        <input type="date" id="taskDate" />
+        <button class="add-btn" onclick="addTask()">Add Task</button>
+      </div>
+
+      <!-- Priority Picker -->
+      <div class="priority-section">
+        <div class="priority-section-label">Priority</div>
+        <div class="priority-picker">
+          <div class="priority-pill" data-p="urgent" onclick="selectPriority(this)">
+            <span class="p-icon">🚨</span>
+            <span>Urgent</span>
+            <div class="p-bar"><span></span><span></span><span></span></div>
+          </div>
+          <div class="priority-pill" data-p="high" onclick="selectPriority(this)">
+            <span class="p-icon">🔴</span>
+            <span>High</span>
+            <div class="p-bar"><span></span><span></span><span></span></div>
+          </div>
+          <div class="priority-pill selected" data-p="medium" onclick="selectPriority(this)">
+            <span class="p-icon">⚡</span>
+            <span>Medium</span>
+            <div class="p-bar"><span></span><span></span><span></span></div>
+          </div>
+          <div class="priority-pill" data-p="low" onclick="selectPriority(this)">
+            <span class="p-icon">🟢</span>
+            <span>Low</span>
+            <div class="p-bar"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category Picker -->
+      <div class="priority-section-label category-label">Category</div>
+      <div class="category-pills">
+        <div class="cat-pill selected" data-cat="Work"     onclick="selectCat(this)">💼 Work</div>
+        <div class="cat-pill"          data-cat="Personal" onclick="selectCat(this)">🧡 Personal</div>
+        <div class="cat-pill"          data-cat="Health"   onclick="selectCat(this)">💪 Health</div>
+        <div class="cat-pill"          data-cat="Learning" onclick="selectCat(this)">📚 Learning</div>
+        <div class="cat-pill"          data-cat="Other"    onclick="selectCat(this)">✨ Other</div>
+      </div>
+
+      <!-- Recurring Picker -->
+      <div class="recur-section">
+        <div class="recur-label-row">🔁 Repeat</div>
+        <div class="recur-picker">
+          <div class="recur-pill selected" data-r="none"     onclick="selectRecur(this)"><span class="r-icon">–</span> None</div>
+          <div class="recur-pill"          data-r="daily"    onclick="selectRecur(this)"><span class="r-icon">📅</span> Daily</div>
+          <div class="recur-pill"          data-r="weekdays" onclick="selectRecur(this)"><span class="r-icon">💼</span> Weekdays</div>
+          <div class="recur-pill"          data-r="weekly"   onclick="selectRecur(this)"><span class="r-icon">📆</span> Weekly</div>
+          <div class="recur-pill"          data-r="monthly"  onclick="selectRecur(this)"><span class="r-icon">🗓</span> Monthly</div>
+        </div>
+      </div>
+
+    </div><!-- /.add-form -->
+
+    <!-- PRIORITY BREAKDOWN CHART -->
+    <div class="priority-breakdown">
+      <div class="pb-head">
+        <span class="pb-label">Priority Breakdown</span>
+        <span class="pb-hint">Click a bar to filter</span>
+      </div>
+      <div class="pb-bars" id="priorityBreakdown"></div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+      <button class="filter-btn"        onclick="setFilter('active', this)">Active</button>
+      <button class="filter-btn"        onclick="setFilter('done', this)">Completed</button>
+      <button class="filter-btn"        onclick="setFilter('high', this)">🔴 High Priority</button>
+      <button class="filter-btn"        onclick="setFilter('overdue', this)">⚠ Overdue</button>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search tasks..."
+          oninput="renderTasks()"
+        />
+      </div>
+    </div>
+
+    <!-- TASK LIST -->
+    <div class="tasks-section">
+      <div class="section-header">
+        <div class="section-title">Tasks</div>
+        <div class="task-count" id="taskCount">0 tasks</div>
+      </div>
+      <div class="task-list" id="taskList"></div>
+    </div>
+
+  </div><!-- /.container -->
+
+
+  <!-- ─────────────────────────────────────────────
+       EDIT TASK MODAL
+  ───────────────────────────────────────────── -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal">
+      <div class="modal-title">Edit Task</div>
+
+      <label>Task Name</label>
+      <input type="text" id="editText" />
+
+      <label>Category</label>
+      <select id="editCat">
+        <option value="Work">💼 Work</option>
+        <option value="Personal">🧡 Personal</option>
+        <option value="Health">💪 Health</option>
+        <option value="Learning">📚 Learning</option>
+        <option value="Other">✨ Other</option>
+      </select>
+
+      <label>Priority</label>
+      <div class="modal-priority-picker" id="editPriorityPicker">
+        <div class="modal-priority-pill" data-p="urgent" onclick="selectEditPriority(this)">
+          <span class="mpp-icon">🚨</span><span>Urgent</span>
+        </div>
+        <div class="modal-priority-pill" data-p="high" onclick="selectEditPriority(this)">
+          <span class="mpp-icon">🔴</span><span>High</span>
+        </div>
+        <div class="modal-priority-pill" data-p="medium" onclick="selectEditPriority(this)">
+          <span class="mpp-icon">⚡</span><span>Medium</span>
+        </div>
+        <div class="modal-priority-pill" data-p="low" onclick="selectEditPriority(this)">
+          <span class="mpp-icon">🟢</span><span>Low</span>
+        </div>
+      </div>
+
+      <label>Due Date</label>
+      <input type="date" id="editDate" />
+
+      <label>Repeat</label>
+      <div class="modal-recur-picker" id="editRecurPicker">
+        <div class="modal-recur-pill selected" data-r="none"     onclick="selectEditRecur(this)">– None</div>
+        <div class="modal-recur-pill"          data-r="daily"    onclick="selectEditRecur(this)">📅 Daily</div>
+        <div class="modal-recur-pill"          data-r="weekdays" onclick="selectEditRecur(this)">💼 Weekdays</div>
+        <div class="modal-recur-pill"          data-r="weekly"   onclick="selectEditRecur(this)">📆 Weekly</div>
+        <div class="modal-recur-pill"          data-r="monthly"  onclick="selectEditRecur(this)">🗓 Monthly</div>
+      </div>
+
+      <label>Notes</label>
+      <textarea id="editNotes" placeholder="Add notes..."></textarea>
+
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-save"   onclick="saveEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div><!-- /.modal-overlay -->
+
+
+  <!-- ─────────────────────────────────────────────
+       TOAST NOTIFICATION
+  ───────────────────────────────────────────── -->
+  <div class="toast" id="toast">
+    <span class="t-icon" id="toastIcon">✅</span>
+    <span id="toastMsg">Task added!</span>
+  </div>
+
+  <!-- External JavaScript -->
+  <script src="app.js"></script>
+
+</body>
+</html>
